@@ -71,7 +71,7 @@ defmodule LiveData do
               nil ->
                 {:ok, pid} =
                   GenServer.start(
-                    parent_module,
+                    parent_module ,
                     [name, params],
                     name: :"#{parent_module}_#{name}"
                   )
@@ -110,12 +110,10 @@ defmodule LiveData do
       end
 
       def handle_info(msg, {state, name, pids}) do
-        IO.inspect(msg)
-
         pids =
           case msg do
             {:DOWN, _ref, :process, object, _reason} ->
-              pids |> List.delete(object) |> IO.inspect(label: "pids")
+              pids |> List.delete(object)
 
             _ ->
               pids
