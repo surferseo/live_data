@@ -69,13 +69,7 @@ defmodule LiveData do
           pid =
             case GenServer.whereis(:"#{parent_module}_#{name}") do
               nil ->
-                {:ok, pid} =
-                  GenServer.start(
-                    parent_module ,
-                    [name, params],
-                    name: :"#{parent_module}_#{name}"
-                  )
-
+                {:ok, pid} = parent_module.start(name, params)
                 pid
 
               pid ->
@@ -83,7 +77,7 @@ defmodule LiveData do
                 pid
             end
 
-          send(pid, {:__live_data_monitor__, self()})
+          parent_module.attach(pid)
           {:noreply, assign(socket, :pid, pid)}
         end
 
@@ -98,6 +92,22 @@ defmodule LiveData do
       end
 
       use GenServer
+
+      # this should be implemented as handle_callbacks to avoid overriding
+      def start(name, params) do
+        {:ok, pid} =
+          GenServer.start(
+            __MODULE__,
+            [name, params],
+            name: :"#{__MODULE__}_#{name}"
+          )
+
+        {:ok, pid}
+      end
+
+      def attach(pid) do
+        send(pid, {:__live_data_monitor__, self()})
+      end
 
       def handle_info({:__live_data_monitor__, child_pid}, {state, name, pids}) do
         Process.monitor(child_pid)
