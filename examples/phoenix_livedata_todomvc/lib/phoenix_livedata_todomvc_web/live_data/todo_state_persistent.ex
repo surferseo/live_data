@@ -3,17 +3,23 @@ defmodule PhoenixLivedataTodomvcWeb.LiveData.TodoStatePersistent do
   use LiveData, endpoint: PhoenixLivedataTodomvcWeb.Endpoint
   import Ecto.Query
 
+  @type state :: any
+
   def init(_) do
     todos = from(t in Todo, order_by: [desc: :id]) |> Repo.all()
 
     {:ok, %{todos: todos}}
   end
 
-  def handle_call({"set_title", %{"id" => id, "title" => title}}, _from, state) do
+  @spec handle_call({:set_title, %{id: String.t(), title: String.t()}}, pid(), state) ::
+          {:reply, :ok, state}
+  def handle_call({:set_title, %{"id" => id, "title" => title}}, _from, state) do
     {:reply, :ok, update_todo(state, id, fn _ -> %{title: title} end)}
   end
 
-  def handle_call({"toggle_all", _}, _from, state) do
+  @spec handle_call({:toggle_all, %{}}, pid(), state) ::
+          {:reply, :ok, state}
+  def handle_call({:toggle_all, _}, _from, state) do
     all_done = state.todos |> Enum.all?(fn todo -> todo.done end)
 
     {_, new_todos} =
@@ -23,13 +29,17 @@ defmodule PhoenixLivedataTodomvcWeb.LiveData.TodoStatePersistent do
     {:reply, :ok, %{state | todos: new_todos}}
   end
 
-  def handle_call({"add_todo", %{"title" => title}}, _from, state) do
+  @spec handle_call({:add_todo, %{title: String.t()}}, pid(), state) ::
+          {:reply, :ok, state}
+  def handle_call({:add_todo, %{"title" => title}}, _from, state) do
     new_todos = [Repo.insert!(%Todo{title: title, done: false}) | state.todos]
 
     {:reply, :ok, %{state | todos: new_todos}}
   end
 
-  def handle_call({"clear_completed", _}, _from, state) do
+  @spec handle_call({:clear_completed, %{}}, pid(), state) ::
+          {:reply, :ok, state}
+  def handle_call({:clear_completed, _}, _from, state) do
     {_, ids} =
       from(t in Todo, select: t.id, where: t.done == true and t.id in ^todo_ids(state))
       |> Repo.delete_all()
@@ -39,7 +49,9 @@ defmodule PhoenixLivedataTodomvcWeb.LiveData.TodoStatePersistent do
     {:reply, :ok, %{state | todos: new_todos}}
   end
 
-  def handle_call({"toggle_done", id}, _from, state) do
+  @spec handle_call({:toggle_done, integer()}, pid(), state) ::
+          {:reply, :ok, state}
+  def handle_call({:toggle_done, id}, _from, state) do
     {:reply, :ok, update_todo(state, id, fn todo -> %{done: !todo.done} end)}
   end
 

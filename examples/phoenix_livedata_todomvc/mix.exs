@@ -43,6 +43,7 @@ defmodule PhoenixLivedataTodomvc.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:json_diff, "~> 0.1.2"},
+      {:morphix, "~> 0.8.0"},
       {:plug_cowboy, "~> 2.0"}
     ]
   end

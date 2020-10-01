@@ -11,7 +11,7 @@ defmodule PhoenixLivedataTodomvcWeb.LiveData.TodoState do
      }}
   end
 
-  def handle_call({"set_title", %{"id" => id, "title" => title}}, _from, state) do
+  def handle_call({:set_title, %{"id" => id, "title" => title}}, _from, state) do
     new_todos =
       state.todos
       |> Enum.map(fn
@@ -22,7 +22,7 @@ defmodule PhoenixLivedataTodomvcWeb.LiveData.TodoState do
     {:reply, :ok, state |> update_todos(new_todos)}
   end
 
-  def handle_call({"toggle_all", _}, _from, state) do
+  def handle_call({:toggle_all, _}, _from, state) do
     all_done = state.todos |> Enum.all?(fn todo -> todo.done end)
 
     new_todos =
@@ -34,13 +34,13 @@ defmodule PhoenixLivedataTodomvcWeb.LiveData.TodoState do
     {:reply, :ok, state |> update_todos(new_todos)}
   end
 
-  def handle_call({"add_todo", %{"title" => title}}, _from, state) do
+  def handle_call({:add_todo, %{"title" => title}}, _from, state) do
     new_todos = [%{id: state.todos |> length, title: title, done: false} | state.todos]
 
     {:reply, :ok, state |> update_todos(new_todos)}
   end
 
-  def handle_call({"clear_completed", _}, _from, state) do
+  def handle_call({:clear_completed, _}, _from, state) do
     new_todos =
       state.todos
       |> Enum.filter(fn
@@ -51,7 +51,7 @@ defmodule PhoenixLivedataTodomvcWeb.LiveData.TodoState do
     {:reply, :ok, state |> update_todos(new_todos)}
   end
 
-  def handle_call({"toggle_done", id}, _from, state) do
+  def handle_call({:toggle_done, id}, _from, state) do
     new_todos =
       state.todos
       |> Enum.map(fn
