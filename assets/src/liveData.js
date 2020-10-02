@@ -39,7 +39,7 @@ export class LiveDataSocket {
    * Create a LiveDataSocket Instance
    * @param {LiveDataSocketOpts} opts
    */
-  constructor(opts) {
+  constructor(opts = {}) {
     this.socket = new Socket(opts.path || "/live_data_socket", opts.params);
     // window is used as
     let context = opts.context || window;
@@ -50,27 +50,40 @@ export class LiveDataSocket {
 
 /** Class for LiveData Component instances. */
 export class LiveData extends EventTarget {
+  // state = {};
+  // name = "";
+  // id = "";
+  // socket = null;
+  // channel = null;
   /**
    * Create a LiveData Component Instance
    * @param {LiveDataOpts} opts
    */
-  constructor(opts) {
+  constructor(opts = {}) {
+    super();
     this.state = {};
-    let context = opts.context || window;
     this.onDiff = opts.onDiff || this._defaultCB;
     this.name = opts.name;
     this.id = opts.id || uuidv4();
+    let context = opts.context || window;
     this.socket = opts.socket || context.LIVE_DATA_SOCKET;
-    this.channel = this.socket.channel(`${this.name}:${this.id}`, opts.params);
+    this.channel = this.socket.socket.channel(
+      `${this.name}:${this.id}`,
+      opts.params
+    );
   }
 
   currentState() {
     return this.state;
   }
 
-  async connect() {
-    this.channel.join();
+  connect() {
     this.channel.on("diff", this._handleDiff);
+
+    this.channel.join().receive("ok", (resp) => {
+      console.log(`Joined ${this.name}:${this.id} successfully`, resp);
+    });
+
     return () => {
       this.channel.leave();
     };
