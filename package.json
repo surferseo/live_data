@@ -1,0 +1,27 @@
+{
+  "name": "live_data",
+  "version": "0.1.0",
+  "description": "**TODO: Add description**",
+  "main": "./priv/static/liveData.js",
+  "files": [
+    "README.md",
+    "LICENSE.md",
+    "package.json",
+    "priv/static/liveData.js",
+    "assets/src/liveData.js"
+  ],
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/surferseo/live_data.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/surferseo/live_data/issues"
+  },
+  "homepage": "https://github.com/surferseo/live_data#readme"
+}

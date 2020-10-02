@@ -1,0 +1,36 @@
+{
+  "name": "assets",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "docs": "documentation build js/liveData.js -f html -o ../doc/js",
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development --watch"
+  },
+  "sideEffects": false,
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "babel-loader": "^8.0.0",
+    "documentation": "^9.0.0",
+    "expose-loader": "^0.7.5",
+    "growl": "~> 1.10.0",
+    "jsdom": "9.8.3",
+    "jsdom-global": "2.1.0",
+    "mocha": "^6.2.2",
+    "mock-socket": "^9.0.0",
+    "sinon": "^9.0.1",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "fast-json-patch": "^3.0.0-1",
+    "phoenix": "^1.5.5",
+    "uuid": "^8.3.0"
+  }
+}

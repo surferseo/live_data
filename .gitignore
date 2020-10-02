@@ -23,3 +23,7 @@ erl_crash.dump
 live_data-*.tar
 
 .elixir_ls
+
+/assets/node_modules/
+
+/priv/static
