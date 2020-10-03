@@ -1,14 +1,14 @@
 {
-  "name": "live_data",
+  "name": "@live-data/core",
   "version": "0.1.0",
   "description": "**TODO: Add description**",
-  "main": "./priv/static/liveData.js",
+  "main": "./priv/static/live-data.js",
   "files": [
     "README.md",
     "LICENSE.md",
     "package.json",
-    "priv/static/liveData.js",
-    "assets/src/liveData.js"
+    "priv/static/live-data.js",
+    "assets/src/live-data.js"
   ],
   "directories": {
     "lib": "lib",

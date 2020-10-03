@@ -1,22 +1,22 @@
 const path = require("path");
 
 module.exports = {
-  entry: "./src/liveData.js",
+  entry: "./src/live-data.js",
   output: {
-    filename: "liveData.js",
+    filename: "live-data.js",
     path: path.resolve(__dirname, "../priv/static"),
-    library: "LiveData",
+    library: "@live-data/core",
     libraryTarget: "umd",
     globalObject: "this",
   },
   module: {
     rules: [
       {
-        test: path.resolve(__dirname, "./src/liveData.js"),
+        test: path.resolve(__dirname, "./src/live-data.js"),
         use: [
           {
             loader: "expose-loader",
-            options: "LiveData",
+            options: "@live-data/core",
           },
         ],
       },

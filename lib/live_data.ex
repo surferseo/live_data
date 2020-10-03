@@ -71,7 +71,7 @@ defmodule LiveData do
               nil ->
                 {:ok, pid} =
                   GenServer.start(
-                    parent_module ,
+                    parent_module,
                     [name, params],
                     name: :"#{parent_module}_#{name}"
                   )
@@ -90,7 +90,7 @@ defmodule LiveData do
         def handle_in(method, params, socket) do
           GenServer.call(
             socket.assigns.pid,
-            {method |> String.to_existing_atom(), params |> Morphix.atomorphiform!(:safe)}
+            {method, params}
           )
 
           {:noreply, socket}

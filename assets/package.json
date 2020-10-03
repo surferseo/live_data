@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "docs": "documentation build js/liveData.js -f html -o ../doc/js",
+    "docs": "documentation build js/live-data.js -f html -o ../doc/js",
     "build": "webpack --mode production",
     "watch": "webpack --mode development --watch"
   },

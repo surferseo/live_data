@@ -33,23 +33,27 @@ import { applyPatch } from "fast-json-patch";
  * @property {Object} context - A context object to attach socket to - defaults to the window.
  */
 
+export function uuid() {
+  return uuidv4();
+}
+
 /** Class for LiveData socket singleton - should only be one of these on the page? */
-export class LiveDataSocket {
+export class LiveDataSocket extends Socket {
   /**
    * Create a LiveDataSocket Instance
    * @param {LiveDataSocketOpts} opts
    */
   constructor(opts = {}) {
-    this.socket = new Socket(opts.path || "/live_data_socket", opts.params);
+    super(opts.path || "/live_data_socket", opts.params);
     // window is used as
     let context = opts.context || window;
     context.LIVE_DATA_SOCKET = this;
-    this.socket.connect();
+    this.connect();
   }
 }
 
 /** Class for LiveData Component instances. */
-export class LiveData extends EventTarget {
+export class LiveData {
   // state = {};
   // name = "";
   // id = "";
@@ -60,17 +64,14 @@ export class LiveData extends EventTarget {
    * @param {LiveDataOpts} opts
    */
   constructor(opts = {}) {
-    super();
+    // super();
     this.state = {};
     this.onDiff = opts.onDiff || this._defaultCB;
     this.name = opts.name;
-    this.id = opts.id || uuidv4();
+    this.id = opts.id || uuid();
     let context = opts.context || window;
     this.socket = opts.socket || context.LIVE_DATA_SOCKET;
-    this.channel = this.socket.socket.channel(
-      `${this.name}:${this.id}`,
-      opts.params
-    );
+    this.channel = this.socket.channel(`${this.name}:${this.id}`, opts.params);
   }
 
   currentState() {
@@ -79,7 +80,6 @@ export class LiveData extends EventTarget {
 
   connect() {
     this.channel.on("diff", this._handleDiff);
-
     this.channel.join().receive("ok", (resp) => {
       console.log(`Joined ${this.name}:${this.id} successfully`, resp);
     });
@@ -89,14 +89,16 @@ export class LiveData extends EventTarget {
     };
   }
 
+  push = (msg, params) => {
+    this.channel.push(msg, params);
+  };
+
   _defaultCB = (newState) => {
     console.log(newState);
   };
 
   _handleDiff = ({ diff }) => {
     const { newDocument } = applyPatch(this.state, diff, false, false);
-    this.state = newDocument;
-    this.onDiff({ ...this.state });
-    this.dispatchEvent(new Event("diff"));
+    this.onDiff(newDocument);
   };
 }
