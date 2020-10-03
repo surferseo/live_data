@@ -47,17 +47,20 @@ defmodule LiveData do
   defmacro __using__(opts) do
     quote do
       @endpoint Keyword.get(unquote(opts), :endpoint)
-      @types_output_path Keyword.get(unquote(opts), :types_output_path, ".")
+      @types_output_path Keyword.get(unquote(opts), :types_output_path, false)
       defmodule Channel do
         use Phoenix.Channel
+        require Logger
 
         def join(name, params, socket) do
+          # need to expose this somehow to allow for authentication/authorization logic
           send(self(), {:after_join, name, params})
 
           {:ok, socket}
         end
 
         def handle_info({:after_join, name, params}, socket) do
+          # actually use the Parent module to start/lookup a supervisor for this channel "App:*"
           parent_module =
             __MODULE__
             |> to_string
@@ -67,13 +70,15 @@ defmodule LiveData do
             |> String.to_atom()
 
           pid =
-            case GenServer.whereis(:"#{parent_module}_#{name}") do
+            case GenServer.whereis({:global, "#{parent_module}_#{name}"}) do
               nil ->
+                Logger.debug("Starting LiveData Process: #{name}")
+
                 {:ok, pid} =
                   GenServer.start(
                     parent_module,
                     [name, params],
-                    name: :"#{parent_module}_#{name}"
+                    name: {:global, "#{parent_module}_#{name}"}
                   )
 
                 pid
@@ -97,7 +102,9 @@ defmodule LiveData do
         end
       end
 
+      # this needs to be here?
       use GenServer
+      require Logger
 
       def handle_info({:__live_data_monitor__, child_pid}, {state, name, pids}) do
         Process.monitor(child_pid)
@@ -120,6 +127,7 @@ defmodule LiveData do
           end
 
         if length(pids) == 0 do
+          Logger.debug("Exiting LiveData Process: #{name}")
           Process.exit(self(), :normal)
         end
 
@@ -175,6 +183,16 @@ defmodule LiveData do
     end
   end
 
+  # TODO
+  # not sure really sure how to do this macro stuff, breaking up the server api to be seperate but similar to a gen_server callback?
+  def __on_definition__(env, kind, :handle_mount, args, guards, body) do
+    Module.put_attribute(env.module, :callbacks, {kind, :handle_mount, args, guards, body})
+  end
+
+  def __on_definition__(env, kind, :handle_action, args, guards, body) do
+    Module.put_attribute(env.module, :callbacks, {kind, :handle_action, args, guards, body})
+  end
+
   def __on_definition__(env, kind, :handle_info, args, guards, body) do
     Module.put_attribute(env.module, :callbacks, {kind, :handle_info, args, guards, body})
   end
@@ -199,10 +217,12 @@ defmodule LiveData do
       |> Enum.map(&wrap_handler/1)
 
     quote do
-      Path.dirname(unquote(env.file))
-      |> Path.join(@types_output_path)
-      |> Path.join(Path.basename(unquote(env.file), ".ex") <> ".ts")
-      |> File.write(LiveData.TypespecParser.to_ts(@spec))
+      if @types_output_path do
+        Path.dirname(unquote(env.file))
+        |> Path.join(@types_output_path)
+        |> Path.join(Path.basename(unquote(env.file), ".ex") <> ".ts")
+        |> File.write(LiveData.TypespecParser.to_ts(@spec))
+      end
 
       unquote(handlers)
 
