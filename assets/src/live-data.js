@@ -54,11 +54,6 @@ export class LiveDataSocket extends Socket {
 
 /** Class for LiveData Component instances. */
 export class LiveData {
-  // state = {};
-  // name = "";
-  // id = "";
-  // socket = null;
-  // channel = null;
   /**
    * Create a LiveData Component Instance
    * @param {LiveDataOpts} opts
