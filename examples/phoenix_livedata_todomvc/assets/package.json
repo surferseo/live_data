@@ -27,7 +27,7 @@
     "todomvc-app-css": "^2.1.2",
     "use-onclickoutside": "^0.3.0",
     "use-react-router": "^1.0.3",
-    "fast-json-patch": "^3.0.0-1",
+    "fast-json-patch": "^3.1.1",
     "webpack-cli": "^3.3.2"
   }
 }
